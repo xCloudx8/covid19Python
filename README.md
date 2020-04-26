@@ -1,4 +1,6 @@
 # covid19Python
+![covid19Analysis](https://github.com/xCloudx8/covid19Python/workflows/covid19Analysis/badge.svg)
+
 This is a simple version of data analysis with Italian dataset taken from: https://github.com/pcm-dpc/COVID-19
 
 ## Prepare the environment
