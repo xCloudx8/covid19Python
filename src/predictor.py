@@ -13,9 +13,9 @@ def norm(x, train_stats):
 
 def build_model(train_dataset):
   model = keras.Sequential([
-    layers.Dense(50, activation='relu', 
+    layers.Dense(64, activation='relu', 
     input_shape=[len(train_dataset.keys())]),
-    layers.Dense(50, activation='relu'),
+    layers.Dense(64, activation='relu'),
     layers.Dense(1)
   ])
 
@@ -31,7 +31,7 @@ def predict():
     #df['data'] = pd.to_datetime(df['data'], format='%Y/%m/%d')
 
     #Clean dataset
-    df = df.drop(['data', 'stato', 'note_en', 'note_it'], axis=1)
+    df = df.drop(['data', 'stato', 'note_en', 'note_it', 'casi_testati'], axis=1)
     
     #print(data.isna().sum())
 
@@ -51,14 +51,14 @@ def predict():
     
     #Split features from labels
     train_labels = train_dataset.pop('totale_positivi')
-    #test_labels = test_dataset.pop('totale_positivi')
+    test_labels = test_dataset.pop('totale_positivi')
 
     normed_train_data = norm(train_dataset, train_stats)
     normed_test_data = norm(test_dataset, train_stats)
 
     #Use model
     model = build_model(train_dataset)
-    print(model.summary())
+    #print(model.summary())
     
     #Train model
     EPOCHS = 1000
@@ -70,11 +70,14 @@ def predict():
         verbose = 0,
         callbacks=[tfdocs.modeling.EpochDots()]
     )
+    loss, mae, mse = model.evaluate(normed_test_data, test_labels, verbose=2)
+    print("Testing set Mean Abs Error: {:5.2f} MPG".format(mae))
 
     #Visualize data
     hist = pd.DataFrame(history.history)
     hist['epoch'] = history.epoch
     hist.tail()
 
+    print(hist)
 if __name__ == '__main__':
     predict()
