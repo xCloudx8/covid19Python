@@ -12,7 +12,10 @@ def plotting():
     df1 = df[['data', 'totale_positivi']]
     df2 = df[['data', 'nuovi_positivi', 'variazione_totale_positivi']]
 
-    df1.plot(kind='line', x='data')
-    df2.plot(kind='line', x='data')
+    df1.plot(kind='scatter', x='data', y='totale_positivi')
+    #df2.plot(kind='line', x='data')
         
     plt.show()
+
+if __name__ == '__main__':
+    plotting()
