@@ -15,7 +15,7 @@ def plotting():
     df1.plot(kind='scatter', x='data', y='totale_positivi')
     #df2.plot(kind='line', x='data')
         
-    plt.show()
+    #plt.show()
 
 if __name__ == '__main__':
     plotting()

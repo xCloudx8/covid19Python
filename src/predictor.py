@@ -7,24 +7,10 @@ import matplotlib.pyplot as plt
 import tensorflow_docs as tfdocs
 import tensorflow_docs.plots
 import tensorflow_docs.modeling
+from . import models
 
 def norm(x, train_stats):
     return (x - train_stats['mean']) / train_stats['std']
-
-def build_model(train_dataset):
-  model = keras.Sequential([
-    layers.Dense(64, activation='relu', 
-    input_shape=[len(train_dataset.keys())]),
-    layers.Dense(64, activation='relu'),
-    layers.Dense(1)
-  ])
-
-  optimizer = tf.keras.optimizers.RMSprop(0.001)
-
-  model.compile(loss='mse',
-                optimizer=optimizer,
-                metrics=['mae', 'mse'])
-  return model
 
 def predict():
     df = pd.read_csv('data/dataCsv.csv', sep=',')
@@ -57,7 +43,7 @@ def predict():
     normed_test_data = norm(test_dataset, train_stats)
 
     #Use model
-    model = build_model(train_dataset)
+    model = models.keras_sequential(train_dataset)
     #print(model.summary())
     
     #Train model
@@ -66,7 +52,7 @@ def predict():
         normed_train_data,
         train_labels,
         epochs = EPOCHS,
-        validation_split = 0.2,
+        validation_split = 0.3,
         verbose = 0,
         callbacks=[tfdocs.modeling.EpochDots()]
     )
