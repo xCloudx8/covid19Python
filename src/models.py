@@ -1,6 +1,9 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from sklearn import linear_model
+from sklearn.metrics import max_error
+import math 
 
 def keras_sequential(train_dataset):
  
@@ -16,3 +19,31 @@ def keras_sequential(train_dataset):
                 optimizer=optimizer,
                 metrics=['mae', 'mse'])
   return model
+
+def linearRegressor(X, y, de):
+  X = X[de:]
+  y = y[de:]
+
+  linearRegr = linear_model.LinearRegression()
+  linearRegr.fit(X,y)
+  score = linearRegr.score(X, y)
+
+  yPred = linearRegr.predict(X)
+  error = max_error(y, yPred)
+
+  Xtest = []
+  gp = 40
+
+  for i in range(de, de+gp):
+    Xtest.append([i])
+  
+  yPred_linear = linearRegr.predict(Xtest)
+
+  yPredMax = []
+  yPredMin = []
+
+  for i in range(0, len(yPred_linear)):
+    yPredMax.append(yPred_linear[i] + error)
+    yPredMin.append(yPred_linear[i] - error)
+  
+  return yPredMax, yPredMin, yPred_linear, Xtest

@@ -1,69 +1,34 @@
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
 import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt
-import tensorflow_docs as tfdocs
-import tensorflow_docs.plots
-import tensorflow_docs.modeling
 from . import models
-
-def norm(x, train_stats):
-    return (x - train_stats['mean']) / train_stats['std']
+from src import dataAnalysis
+from sklearn import linear_model
 
 def predict():
-    df = pd.read_csv('data/dataCsv.csv', sep=',')
-    #df['data'] = pd.to_datetime(df['data'], format='%Y/%m/%d')
+    df = dataAnalysis.dataFrame()
+    total_cases = df['totale_casi']
+    total_analysis = df['tamponi']
 
-    #Clean dataset
-    df = df.drop(['data', 'stato', 'note_en', 'note_it', 'casi_testati'], axis=1)
+    y = []
+    ta_increase = []
+
+    for i in range(1,len(total_analysis)):
+        actEPI = (total_cases[i] - total_cases[i-1])/ (total_analysis[i] - total_analysis[i-1])*100
+        ta_increase.append(total_analysis[i]-total_analysis[i-1])
+        y.append(actEPI)
     
-    #print(data.isna().sum())
+    X = []
+    for i in range(1, len(y)+1):
+        X.append([i])
 
-    #Convert into categorical columns if exists
+    de = 14 + 7
     
-    #Datasets
-    train_dataset = df.sample(frac=0.8,random_state=0)
-    test_dataset = df.drop(train_dataset.index)
+    yPredMax, yPredMin, yPred_linear, Xtest = models.linearRegressor(X, y, de)
 
-    #Plot with seaborn
-    #test_dataset.plot(kind='scatter', x='data', y='totale_positivi')
-    #plt.show()
+    X = X[de:]
+    y = y[de:]
+    dataAnalysis.plottingLinear(df, yPred_linear, yPredMax, yPredMin, de, Xtest, X, y)
 
-    train_stats = train_dataset.describe()
-    train_stats.pop("totale_positivi")
-    train_stats = train_stats.transpose()
-    
-    #Split features from labels
-    train_labels = train_dataset.pop('totale_positivi')
-    test_labels = test_dataset.pop('totale_positivi')
-
-    normed_train_data = norm(train_dataset, train_stats)
-    normed_test_data = norm(test_dataset, train_stats)
-
-    #Use model
-    model = models.keras_sequential(train_dataset)
-    #print(model.summary())
-    
-    #Train model
-    EPOCHS = 1000
-    history = model.fit(
-        normed_train_data,
-        train_labels,
-        epochs = EPOCHS,
-        validation_split = 0.3,
-        verbose = 0,
-        callbacks=[tfdocs.modeling.EpochDots()]
-    )
-    loss, mae, mse = model.evaluate(normed_test_data, test_labels, verbose=2)
-    print("Testing set Mean Abs Error: {:5.2f} MPG".format(mae))
-
-    #Visualize data
-    hist = pd.DataFrame(history.history)
-    hist['epoch'] = history.epoch
-    hist.tail()
-
-    print(hist)
 if __name__ == '__main__':
-    predict()
+    pass
